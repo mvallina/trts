@@ -6,9 +6,12 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("file", type=str, help="data file")
-root = parser.add_mutually_exclusive_group()
-root.add_argument("-D", "--diagnose", action="store_true", help="plot aux polynomial")
-root.add_argument("-I", "--init", type=float, default=10, help="iterative seed")
+parser.add_argument("-R", "--rd", type=float, default=1e3, help="resistor on drain")
+parser.add_argument("-D", "--diagnose", action="store_true", help="plot aux polynomial")
+parser.add_argument("-I", "--init", type=float, default=10, help="iterative seed")
+parser.add_argument("-G", "--gain", type=float, default=25, help="gain desired (dB)")
+parser.add_argument("-P", "--plot", action="store_true", help="plot fitted polynomial")
+
 args = parser.parse_args()
 
 try:
@@ -43,9 +46,8 @@ if args.diagnose:
     exit()
     
 # Biseccion
-va = 0
+va, vt = 0, 0
 vb = args.init
-vt = 0
 while np.abs(va - vb) > 10 * np.finfo(float).eps * va:
     vt = (va + vb) / 2
     d = ((vgs_data - vt) @ id_data - 
@@ -65,14 +67,25 @@ if np.abs(k - k2) > 10 * np.finfo(float).eps * k:
     print("fit invalid, try a different seed estimated from aux polynomial")
     exit()
 
-print("k = {0:3.3f} mA/V^2\nVt = {1:2.3f} V".format(k * 1000, vt))
+gain_target = 10 ** (args.gain / 20)
+vgsq = gain_target / (2 * k * args.rd) + vt
+idq = k * (vgsq - vt) ** 2
 
-vgs = np.linspace(vgs_data[0], vgs_data[len(vgs_data) - 1], 1000)
-i_d = k * np.square(vgs - vt)
+print("k = {:3.3f} mA/V^2".format(k * 1000))
+print("Vt = {:2.3f} V\n".format(vt))
+print("Desired gain [{} dB]".format(args.gain))
+print("Rd {}".format(args.rd))
+print("Vgsq = {:3.3} V".format(vgsq))
+print("Idq = {:2.4} mA".format(1000 * idq))
 
-plt.title(r"$K = {0:3.3f} mA/V^2, V_t = {1:2.3f}V$".format(k * 1000, vt))
-plt.xlabel(r"$v_t$")
-plt.ylabel(r"$i_d$")
-plt.grid()
-plt.plot(vgs_data, id_data, "o", vgs, i_d, "-")
-plt.show()
+if args.plot:
+    vgs = np.linspace(vgs_data[0], vgs_data[len(vgs_data) - 1], 1000)
+    i_d = k * np.square(vgs - vt)
+    
+    plt.title(r"$K = {0:3.3f} mA/V^2, V_t = {1:2.3f}V$".format(k * 1000, vt))
+    plt.xlabel(r"$v_t$")
+    plt.ylabel(r"$i_d$")
+    plt.grid()
+    plt.plot(vgs_data, id_data, marker="o", linestyle=" ")
+    plt.plot(vgs, i_d, linestyle="-")
+    plt.show()
