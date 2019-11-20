@@ -33,7 +33,7 @@ if args.diagnose:
     #    np.square(vgs_data - v) @ id_data * np.sum(np.power(vgs_data - v, 3)) / 
     #    np.sum(np.power(vgs_data - v, 4)))]
         
-    plt.plot(vx, vy1, "r") 
+    plt.plot(vx, vy1, color="r") 
     #plt.plot(vx, vy2, "g") 
     #plt.plot(vx, vy3, "b") 
     plt.xlabel(r"$v_t$")
