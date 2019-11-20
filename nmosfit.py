@@ -73,8 +73,8 @@ idq = k * (vgsq - vt) ** 2
 
 print("k = {:3.3f} mA/V^2".format(k * 1000))
 print("Vt = {:2.3f} V\n".format(vt))
-print("Desired gain [{} dB]".format(args.gain))
-print("Rd {}".format(args.rd))
+print("Gain = {} dB".format(args.gain))
+print("Rd = {} ohm".format(args.rd))
 print("Vgsq = {:3.3} V".format(vgsq))
 print("Idq = {:2.4} mA".format(1000 * idq))
 
@@ -83,7 +83,7 @@ if args.plot:
     i_d = k * np.square(vgs - vt)
     
     plt.title(r"$K = {0:3.3f} mA/V^2, V_t = {1:2.3f}V$".format(k * 1000, vt))
-    plt.xlabel(r"$v_t$")
+    plt.xlabel(r"$v_{gs}$")
     plt.ylabel(r"$i_d$")
     plt.grid()
     plt.plot(vgs_data, id_data, marker="o", linestyle=" ")
