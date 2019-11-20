@@ -34,8 +34,8 @@ if args.diagnose:
     #    np.sum(np.power(vgs_data - v, 4)))]
         
     plt.plot(vx, vy1, color="r") 
-    #plt.plot(vx, vy2, "g") 
-    #plt.plot(vx, vy3, "b") 
+    #plt.plot(vx, vy2, color="g") 
+    #plt.plot(vx, vy3, color="b") 
     plt.xlabel(r"$v_t$")
     plt.ylabel(r"$p(v_t$)")
     plt.grid()
