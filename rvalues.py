@@ -1,3 +1,6 @@
+import numpy as np
+import math
+
 E24 = ([1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 
         1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 
         3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 
@@ -13,3 +16,16 @@ E96 = ([1.00, 1.02, 1.05, 1.07, 1.10, 1.13, 1.15, 1.18, 1.21,
         5.62, 5.76, 5.90, 6.04, 6.19, 6.34, 6.49, 6.65, 6.81,
         6.98, 7.15, 7.32, 7.50, 7.68, 7.87, 8.06, 8.25, 8.45, 
         8.66, 8.87, 9.09, 9.31, 9.53, 9.76])
+
+def best_rdiv(vdd, vrel, E):
+    eserie = E96 if E else E24
+    divd = sorted([(np.abs(vrel - vdd * R2 / (R1 + R2)), R1, R2) 
+        for R1 in eserie for R2 in eserie], key = lambda x:x[0])
+    return divd[0]
+
+def nearest_r(resistor, E):
+    eserie = E96 if E else E24
+    order = 10 ** math.floor(math.log10(resistor))
+    resistors = sorted([(np.abs(resistor / order - R), R * order) 
+        for R in eserie], key = lambda x:x[0])
+    return int(resistors[0][1])
