@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import argparse
 from scipy.optimize import curve_fit
-from resistor import best_rdiv, nearest_r
+from resistor import best_rdiv, nearest_r, r_str
 
 parser = argparse.ArgumentParser()
 parser.add_argument("file", type=str, help="data file")
@@ -50,22 +50,22 @@ vgsq = [root for root in
 idq = idrain(vgsq, k, vt)
 gain = 20 * np.log10(2 * k * (vgsq - vt) * rd)
 
-print("k = {:4.1f} mA/V²".format(k * 1000))
-print("Vt = {:5.2f} V\n".format(vt))
-print("R1 = {} ohm".format(R1))
-print("R2 = {} ohm".format(R2))
-print("Rd = {} ohm".format(rd))
-print("Rs = {} ohm\n".format(rs))
-print("Vgq = {:5.2f} V".format(vgq))
-print("Vgsq = {:5.2f} V".format(vgsq))
-print("Idq = {:4.1f} mA\n".format(1000 * idq))
-print("Gain = {:3.0f} dB".format(gain))
+print("K = {:.1f} mA/V²".format(k * 1000))
+print("Vt = {:.2f} V\n".format(vt))
+print("R1 = {:}".format(r_str(R1)))
+print("R2 = {:}".format(r_str(R2)))
+print("Rd = {:}".format(r_str(rd)))
+print("Rs = {:}\n".format(r_str(rs)))
+print("Vgq = {:.2f} V".format(vgq))
+print("Vgsq = {:.2f} V".format(vgsq))
+print("Idq = {:.1f} mA\n".format(1000 * idq))
+print("Gain = {:.0f} dB".format(gain))
 
 if args.plot:
     vgs = np.linspace(vgs_data[0], vgs_data[len(vgs_data) - 1], 1000)
     i_d = k * np.square(vgs - vt)
     
-    plt.title(r"$K = {0:6.1f} mA/V^2, V_t = {1:6.3f}V$".format(k * 1000, vt))
+    plt.title(r"$K = {0:4.1f} mA/V^2, V_t = {1:5.2f}V$".format(k * 1000, vt))
     plt.xlabel(r"$v_{gs}$")
     plt.ylabel(r"$i_d$")
     plt.grid()

@@ -28,3 +28,11 @@ def nearest_r(resistor, E):
     resistors = sorted([(np.abs(resistor / order - R), R * order) 
         for R in eserie], key = lambda x:x[0])
     return int(resistors[0][1])
+
+def r_str(resistor):
+    if resistor >= 1e6:
+        return "{:.1f}".format(resistor / 1e6).rstrip("0").replace(".", "M")
+    elif resistor >= 1e3:
+        return "{:.1f}".format(resistor / 1e3).rstrip("0").replace(".", "K")
+    else:
+        return "{:}R".format(resistor)
