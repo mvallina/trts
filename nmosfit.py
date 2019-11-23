@@ -50,7 +50,7 @@ vgsq = [root for root in
 idq = idrain(vgsq, k, vt)
 gain = 20 * np.log10(2 * k * (vgsq - vt) * rd)
 
-print("K = {:.1f}".format(k * 1000).rstrip("0").rstrip(".") + "mA/V²")
+print("K = {:.1f}".format(k * 1000).rstrip("0").rstrip(".") + " mA/V²")
 print("Vt = {:.2f}".format(vt).rstrip("0").rstrip(".") + " V\n")
 print("R1 = {:}".format(r_str(R1)))
 print("R2 = {:}".format(r_str(R2)))
