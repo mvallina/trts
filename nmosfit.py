@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import argparse
 from scipy.optimize import curve_fit
-from rvalues import best_rdiv, nearest_r
+from resistor import best_rdiv, nearest_r
 
 parser = argparse.ArgumentParser()
 parser.add_argument("file", type=str, help="data file")
@@ -26,6 +26,9 @@ except OSError:
     
 vgs_data, id_data = data[:, 0], data[:, 1]
 
+rd = nearest_r(args.rd, args.e96)
+rs = nearest_r(args.rs, args.e96)
+
 def idrain(vgs, k, vt):
     return k * (vgs - vt) ** 2
 
@@ -33,22 +36,30 @@ popt, pcov = curve_fit(idrain, vgs_data, id_data)
 k, vt = tuple(popt)
 
 gain_target = 10 ** (args.gain / 20)
-vgsq = gain_target / (2 * k * args.rd) + vt
+vgsq_target = gain_target / (2 * k * rd) + vt
+idq_target = idrain(vgsq_target, k, vt)
+vgq_target = vgsq_target + idq_target * rs
+
+d, R1, R2 = best_rdiv(args.vdd, vgq_target, args.e96)
+R1 = int(R1 * 10 ** args.odiv)
+R2 = int(R2 * 10 ** args.odiv)
+vgq = args.vdd * R2 / (R1 + R2)
+vgsq = [root for root in 
+        np.poly1d([rs * k, 1 - 2 * rs * k * vt, rs * k * vt ** 2 - vgq]).r
+        if root > vt][0]
 idq = idrain(vgsq, k, vt)
-vgq = vgsq + idq * args.rs
+gain = 20 * np.log10(2 * k * (vgsq - vt) * rd)
 
-d, R1, R2 = best_rdiv(args.vdd, vgq, args.e96)
-print(args.vdd * R2 / (R1 + R2), R1 * 10 ** args.odiv, R2 * 10 ** args.odiv, 100 * d / vgq)
-print(nearest_r(7149, args.e96))
-
-print("k = {:6.1f} mA/V^2".format(k * 1000))
-print("Vt = {:6.3f} V\n".format(vt))
-print("Gain = {:5.1f} dB".format(args.gain))
-print("Rd = {} ohm".format(args.rd))
-print("Rs = {} ohm".format(args.rs))
-print("Vgq = {:6.3f} V".format(vgq))
-print("Vgsq = {:6.3f} V".format(vgsq))
-print("Idq = {:6.1f} mA".format(1000 * idq))
+print("k = {:4.1f} mA/V²".format(k * 1000))
+print("Vt = {:5.2f} V\n".format(vt))
+print("R1 = {} ohm".format(R1))
+print("R2 = {} ohm".format(R2))
+print("Rd = {} ohm".format(rd))
+print("Rs = {} ohm\n".format(rs))
+print("Vgq = {:5.2f} V".format(vgq))
+print("Vgsq = {:5.2f} V".format(vgsq))
+print("Idq = {:4.1f} mA\n".format(1000 * idq))
+print("Gain = {:3.0f} dB".format(gain))
 
 if args.plot:
     vgs = np.linspace(vgs_data[0], vgs_data[len(vgs_data) - 1], 1000)
