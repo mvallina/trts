@@ -23,6 +23,8 @@ def best_rdiv(vdd, vrel, ise96):
     return (divd[0][1], divd[0][2])
 
 def nearest_r(resistor, ise96):
+    if resistor <= 0:
+        return 0
     eserie = E96 if ise96 else E24
     order = 10 ** np.floor(np.log10(resistor))
     resistors = sorted([(np.abs(resistor / order - R), R * order) 
