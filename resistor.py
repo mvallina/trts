@@ -20,7 +20,7 @@ def best_rdiv(vdd, vrel, E):
     eserie = E96 if E else E24
     divd = sorted([(np.abs(vrel - vdd * R2 / (R1 + R2)), R1, R2) 
         for R1 in eserie for R2 in eserie], key = lambda x:x[0])
-    return divd[0]
+    return (divd[0][1], divd[0][2])
 
 def nearest_r(resistor, E):
     eserie = E96 if E else E24

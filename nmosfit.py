@@ -40,7 +40,7 @@ vgsq_target = gain_target / (2 * k * rd) + vt
 idq_target = idrain(vgsq_target, k, vt)
 vgq_target = vgsq_target + idq_target * rs
 
-d, R1, R2 = best_rdiv(args.vdd, vgq_target, args.e96)
+R1, R2 = best_rdiv(args.vdd, vgq_target, args.e96)
 R1 = int(R1 * 10 ** args.odiv)
 R2 = int(R2 * 10 ** args.odiv)
 vgq = args.vdd * R2 / (R1 + R2)
