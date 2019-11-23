@@ -16,23 +16,29 @@ E96 = ([1.00, 1.02, 1.05, 1.07, 1.10, 1.13, 1.15, 1.18, 1.21,
         6.98, 7.15, 7.32, 7.50, 7.68, 7.87, 8.06, 8.25, 8.45, 
         8.66, 8.87, 9.09, 9.31, 9.53, 9.76])
 
-def best_rdiv(vdd, vrel, E):
-    eserie = E96 if E else E24
+def best_rdiv(vdd, vrel, ise96):
+    eserie = E96 if ise96 else E24
     divd = sorted([(np.abs(vrel - vdd * R2 / (R1 + R2)), R1, R2) 
         for R1 in eserie for R2 in eserie], key = lambda x:x[0])
     return (divd[0][1], divd[0][2])
 
-def nearest_r(resistor, E):
-    eserie = E96 if E else E24
+def nearest_r(resistor, ise96):
+    eserie = E96 if ise96 else E24
     order = 10 ** np.floor(np.log10(resistor))
     resistors = sorted([(np.abs(resistor / order - R), R * order) 
         for R in eserie], key = lambda x:x[0])
     return int(resistors[0][1])
 
-def r_str(resistor):
+def r_str(resistor, ise96):
     if resistor >= 1e6:
-        return "{:.1f}".format(resistor / 1e6).rstrip("0").replace(".", "M")
+        if ise96:
+            return "{:.2f}".format(resistor / 1e6).rstrip("0").replace(".", "M")
+        else:
+            return "{:.1f}".format(resistor / 1e6).rstrip("0").replace(".", "M")
     elif resistor >= 1e3:
-        return "{:.1f}".format(resistor / 1e3).rstrip("0").replace(".", "K")
+        if ise96:
+            return "{:.2f}".format(resistor / 1e3).rstrip("0").replace(".", "K")
+        else:
+            return "{:.1f}".format(resistor / 1e3).rstrip("0").replace(".", "K")
     else:
         return "{:}R".format(resistor)
