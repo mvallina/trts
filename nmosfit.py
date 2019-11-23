@@ -56,9 +56,9 @@ if vdsq < vgsq:
     exit()
 gain = 20 * np.log10(2 * k * (vgsq - vt) * rd)
 
-print("Estimated transistor parameters")
+print("\nEstimated transistor parameters")
 print("-------------------------------")
-print("K = {:>5.1f}".format(k * 1000).rstrip("0").rstrip(".") + " mA/V²")
+print("K = {:>6.1f}".format(k * 1000).rstrip("0").rstrip(".") + " mA/V²")
 print("Vt = {:>5.2f}".format(vt).rstrip("0").rstrip(".") + " V\n")
 print("Best polarization network found for desired gain")
 print("------------------------------------------------")
@@ -76,7 +76,7 @@ print("{0:<6s} {1:>5.2f}".format("Vsq =", vsq).rstrip("0").rstrip(".") + " V")
 print("{0:<6s} {1:>5.1f}".format("Idq =", 1000 * idq).rstrip("0").rstrip(".") + " mA\n")
 print("Achieved gain")
 print("-------------")
-print("Gain = {:.0f} dB".format(gain))
+print("Gain = {:.1f} dB\n".format(gain))
 
 if args.plot:
     vgs = np.linspace(vgs_data[0], vgs_data[len(vgs_data) - 1], 1000)
