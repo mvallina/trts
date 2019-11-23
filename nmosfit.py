@@ -48,17 +48,34 @@ vgsq = [root for root in
         np.poly1d([rs * k, 1 - 2 * rs * k * vt, rs * k * vt ** 2 - vgq]).r
         if root > vt][0]
 idq = idrain(vgsq, k, vt)
+vsq = idq * rs
+vdq = args.vdd - idq * rd
+vdsq = vdq - vsq
+if vdsq < vgsq:
+    print("No saturation")
+    exit()
 gain = 20 * np.log10(2 * k * (vgsq - vt) * rd)
 
-print("K = {:.1f}".format(k * 1000).rstrip("0").rstrip(".") + " mA/V²")
-print("Vt = {:.2f}".format(vt).rstrip("0").rstrip(".") + " V\n")
-print("R1 = {:}".format(r_str(R1, args.e96)))
-print("R2 = {:}".format(r_str(R2, args.e96)))
-print("Rd = {:}".format(r_str(rd, args.e96)))
-print("Rs = {:}\n".format(r_str(rs, args.e96)))
-print("Vgq = {:.2f}".format(vgq).rstrip("0").rstrip(".") + " V")
-print("Vgsq = {:.2f}".format(vgsq).rstrip("0").rstrip(".") + " V")
-print("Idq = {:.1f}".format(1000 * idq).rstrip("0").rstrip(".") + " mA\n")
+print("Estimated transistor parameters")
+print("-------------------------------")
+print("K = {:>5.1f}".format(k * 1000).rstrip("0").rstrip(".") + " mA/V²")
+print("Vt = {:>5.2f}".format(vt).rstrip("0").rstrip(".") + " V\n")
+print("Best polarization network found for desired gain")
+print("------------------------------------------------")
+print("R1 = {:>5s}".format(r_str(R1, args.e96)))
+print("R2 = {:>5s}".format(r_str(R2, args.e96)))
+print("Rd = {:>5s}".format(r_str(rd, args.e96)))
+print("Rs = {:>5s}\n".format(r_str(rs, args.e96)))
+print("Quiescent point")
+print("---------------")
+print("{0:<6s} {1:>5.2f}".format("Vgsq =", vgsq).rstrip("0").rstrip(".") + " V")
+print("{0:<6s} {1:>5.2f}".format("Vdsq =", vdsq).rstrip("0").rstrip(".") + " V")
+print("{0:<6s} {1:>5.2f}".format("Vdq =", vdq).rstrip("0").rstrip(".") + " V")
+print("{0:<6s} {1:>5.2f}".format("Vgq =", vgq).rstrip("0").rstrip(".") + " V")
+print("{0:<6s} {1:>5.2f}".format("Vsq =", vsq).rstrip("0").rstrip(".") + " V")
+print("{0:<6s} {1:>5.1f}".format("Idq =", 1000 * idq).rstrip("0").rstrip(".") + " mA\n")
+print("Achieved gain")
+print("-------------")
 print("Gain = {:.0f} dB".format(gain))
 
 if args.plot:
