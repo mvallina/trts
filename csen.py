@@ -33,7 +33,8 @@ rs = nearest_r(args.rs, args.e96)
 trt = FETen.fromdata(vgs_data, id_data)
 
 try:
-    etapa = EtapaSE.from_gain_rd_rs(trt, args.vdd, args.gain, rd, rs, args.odiv, args.e96)
+    etapa = EtapaSE.from_gain_rd_rs_zi(trt, args.vdd, args.gain, 
+            rd, rs, odiv=args.odiv, isE96=args.e96)
 except Corte:
     print("Transistor en corte")
     exit()
@@ -44,14 +45,15 @@ except DemasiadaCorriente:
     print("¡¡¡ Demasiada corriente !!!")
     exit()
 
-print("\nParámetros estimados\n")
+print("\nParámetros estimados nFET\n")
 print("{0:<4s} {1:>5.2f}".format("K =", etapa.fet.k * 1000) + " mA/V²")
 print("{0:<4s} {1:>5.2f}".format("Vt =", etapa.fet.vt) + " V\n")
 print("Red de polarización\n")
 print("R1 = {:>5s}".format(r_str(etapa.r1, args.e96)))
 print("R2 = {:>5s}".format(r_str(etapa.r2, args.e96)))
 print("Rd = {:>5s}".format(r_str(etapa.rd, args.e96)))
-print("Rs = {:>5s}\n".format(r_str(etapa.rs, args.e96)))
+print("Rs = {:>5s}".format(r_str(etapa.rs, args.e96)))
+print("Rg = {:>5s}\n".format(r_str(etapa.rg, args.e96)))
 print("Punto de trabajo\n")
 print("{0:<6s} {1:>5.2f}".format("Vdd =", etapa.vdd) + " V")
 print("{0:<6s} {1:>5.2f}".format("Vgsq =", etapa.get_vgsq()) + " V")
@@ -60,7 +62,10 @@ print("{0:<6s} {1:>5.2f}".format("Vdq =", etapa.get_vdq()) + " V")
 print("{0:<6s} {1:>5.2f}".format("Vgq =", etapa.get_vgq()) + " V")
 print("{0:<6s} {1:>5.2f}".format("Vsq =", etapa.get_vsq()) + " V")
 print("{0:<6s} {1:>5.2f}".format("Idq =", 1000 * etapa.get_idq()) + " mA\n")
-print("Ganancia conseguida = {:.1f} dB\n".format(etapa.get_gain()))
+print("Parámetros etapa\n")
+print("{0:<3s} {1:>6.1f}".format("G =", etapa.get_gain()) + " dB")
+print("{0:<3s} {1:>5s}".format("Zi =", r_str(etapa.get_zi(), args.e96)))
+print("{0:<3s} {1:>5s}".format("Zo =", r_str(etapa.get_zo(), args.e96)))
 
 if args.plot:
     vgs = np.linspace(vgs_data[0], vgs_data[len(vgs_data) - 1], 1000)

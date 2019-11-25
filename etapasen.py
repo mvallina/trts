@@ -2,7 +2,7 @@
 
 import numpy as np
 from feten import FETen
-from resistor import best_rdiv
+from resistor import best_rdiv, nearest_r
 
 class EtapaSE: 
 
@@ -20,7 +20,7 @@ class EtapaSE:
         self.calcula_pto_trabajo()
 
     @classmethod
-    def from_gain_rd_rs(cls, fet, vdd=12, gain_t=25, rd=100, rs=0, odiv=4, isE96=False):
+    def from_gain_rd_rs_zi(cls, fet, vdd=12, gain_t=25, rd=100, rs=0, zi=1e5, odiv=4, isE96=False):
         gain_target = 10 ** (gain_t / 20)
         vgsq_target = gain_target / (2 * fet.k * rd) + fet.vt
         idq_target = FETen.idrain(vgsq_target, fet.k, fet.vt)
@@ -29,8 +29,7 @@ class EtapaSE:
         r1, r2 = best_rdiv(vdd, vgq_target, isE96)
         r1 = int(r1 * 10 ** odiv)
         r2 = int(r2 * 10 ** odiv)
-
-        rg = 0
+        rg = nearest_r(zi - r1 * r2 / (r1 + r2), isE96)
 
         return cls(fet, vdd, rd, rs, r1, r2, rg)
 
@@ -54,6 +53,7 @@ class EtapaSE:
     @r1.setter
     def r1(self, r1):
         self.__r1 = r1
+        self.__zi = rg + r1 * r2 / (r1 + r2)
         self.calcula_pto_trabajo()
 
     @property
@@ -63,6 +63,7 @@ class EtapaSE:
     @r2.setter
     def r2(self, r2):
         self.__r2 = r2
+        self.__zi = rg + r1 * r2 / (r1 + r2)
         self.calcula_pto_trabajo()
 
     @property
@@ -72,6 +73,7 @@ class EtapaSE:
     @rd.setter
     def rd(self, rd):
         self.__rd = rd
+        self.__zo = rd
         self.calcula_pto_trabajo()
 
     @property
@@ -82,6 +84,15 @@ class EtapaSE:
     def rs(self, rs):
         self.__rs = rs
         self.calcula_pto_trabajo()
+
+    @property
+    def rg(self):
+        return self.__rg
+
+    @rg.setter
+    def rg(self, rg):
+        self.__rg = rg
+        self.__zi = rg + r1 * r2 / (r1 + r2)
 
     @property
     def fet(self):
@@ -121,3 +132,9 @@ class EtapaSE:
 
     def get_gain(self):
         return self.__gain
+
+    def get_zi(self):
+        return self.__zi
+
+    def get_zo(self):
+        return self.__zo
