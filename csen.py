@@ -13,6 +13,7 @@ parser.add_argument("-Rd", "--rd", type=int, default=100, help="resistencia dren
 parser.add_argument("-Rs", "--rs", type=int, default=0, help="resistencia surtidor")
 parser.add_argument("-G", "--gain", type=float, default=25, help="ganancia (dB)")
 parser.add_argument("-P", "--plot", action="store_true", help="pintar ajuste")
+parser.add_argument("-I", "--idmax", type= float, default=.2, help="Id_max")
 parser.add_argument("-E", "--e96", action="store_true", help="E96 en vez de E24")
 parser.add_argument("-V", "--vdd", type=float, default=12, help="Vdd")
 parser.add_argument("-O", "--odiv", type=int, default=4, help="orden del divisor de tensión")
@@ -30,11 +31,9 @@ vgs_data, id_data = data[:, 0], data[:, 1]
 rd = nearest_r(args.rd, args.e96)
 rs = nearest_r(args.rs, args.e96)
 
-trt = FETen.fromdata(vgs_data, id_data)
-
 try:
-    etapa = EtapaSE.from_gain_rd_rs_zi(trt, args.vdd, args.gain, 
-            rd, rs, odiv=args.odiv, isE96=args.e96)
+    etapa = EtapaSE.from_gain_rd_rs_zi(FETen.fromdata(vgs_data, id_data, args.idmax), 
+                args.vdd, args.gain, rd, rs, odiv=args.odiv, isE96=args.e96)
 except Corte:
     print("Transistor en corte")
     exit()
@@ -46,8 +45,8 @@ except DemasiadaCorriente:
     exit()
 
 print("\nParámetros estimados nFET\n")
-print("{0:<4s} {1:>5.2f}".format("K =", etapa.fet.k * 1000) + " mA/V²")
-print("{0:<4s} {1:>5.2f}".format("Vt =", etapa.fet.vt) + " V\n")
+print("{0:<4s} {1:>5.2f}".format("K =", etapa.get_k() * 1000) + " mA/V²")
+print("{0:<4s} {1:>5.2f}".format("Vt =", etapa.get_vt()) + " V\n")
 print("Red de polarización\n")
 print("R1 = {:>5s}".format(r_str(etapa.r1, args.e96)))
 print("R2 = {:>5s}".format(r_str(etapa.r2, args.e96)))

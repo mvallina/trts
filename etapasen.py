@@ -34,17 +34,17 @@ class EtapaSE:
         return cls(fet, vdd, rd, rs, r1, r2, rg)
 
     def calcula_pto_trabajo(self):
-        self.fet.vg = self.vdd * self.r2 / (self.r1 + self.r2)
+        self.__fet.vg = self.vdd * self.r2 / (self.r1 + self.r2)
         vgsq = [root for root in 
             np.poly1d([
-                self.rs * self.fet.k, 
-                1 - 2 * self.rs * self.fet.k * self.fet.vt, 
-                self.rs * self.fet.k * self.fet.vt ** 2 - self.fet.vg]).r
-            if root > self.fet.vt][0]
-        self.fet.vs = FETen.idrain(vgsq, self.fet.k, self.fet.vt) * self.rs
-        self.fet.vd = self.vdd - self.fet.get_id() * self.rd
-        self.fet.on()
-        self.__gain = 20 * np.log10(self.fet.get_gm() * self.rd)
+                self.rs * self.__fet.k, 
+                1 - 2 * self.rs * self.__fet.k * self.__fet.vt, 
+                self.rs * self.__fet.k * self.__fet.vt ** 2 - self.__fet.vg]).r
+            if root > self.__fet.vt][0]
+        self.__fet.vs = FETen.idrain(vgsq, self.__fet.k, self.__fet.vt) * self.rs
+        self.__fet.vd = self.vdd - self.__fet.get_id() * self.rd
+        self.__fet.on()
+        self.__gain = 20 * np.log10(self.__fet.get_gm() * self.rd)
 
     @property
     def r1(self):
@@ -95,15 +95,6 @@ class EtapaSE:
         self.__zi = rg + r1 * r2 / (r1 + r2)
 
     @property
-    def fet(self):
-        return self.__fet
-
-    @fet.setter
-    def fet(self, fet):
-        self.__fet = fet
-        self.calcula_pto_trabajo()
-
-    @property
     def vdd(self):
         return self.__vdd
 
@@ -113,22 +104,22 @@ class EtapaSE:
         self.calcula_pto_trabajo()
 
     def get_vgsq(self):
-        return self.fet.get_vgs()
+        return self.__fet.get_vgs()
 
     def get_vdsq(self):
-        return self.fet.get_vds()
+        return self.__fet.get_vds()
 
     def get_vdq(self):
-        return self.fet.vd
+        return self.__fet.vd
 
     def get_vgq(self):
-        return self.fet.vg
+        return self.__fet.vg
 
     def get_vsq(self):
-        return self.fet.vs
+        return self.__fet.vs
 
     def get_idq(self):
-        return self.fet.get_id()
+        return self.__fet.get_id()
 
     def get_gain(self):
         return self.__gain
@@ -138,3 +129,9 @@ class EtapaSE:
 
     def get_zo(self):
         return self.__zo
+
+    def get_k(self):
+        return self.__fet.k
+
+    def get_vt(self):
+        return self.__fet.vt
