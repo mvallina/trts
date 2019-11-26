@@ -19,25 +19,24 @@ class FETen:
         self.__vd = vd
         self.__vg = vg
         self.__vs = vs
-        self.__gm = 2 * k * (vg - vs + vt)
+        self.__gm = 2 * self.k * (self.vg - self.vs + self.vt)
         self.__id = FETen.idrain(self.vg - self.vs, self.k, self.vt)
         self.__id_max = id_max
-        self.__error = None if error is None else np.sqrt(np.diag(error))
+        self.__error = None if error is None else error
 
-    def __check__(self):
+    def __check(self):
         if self.vg - self.vs < self.vt:
             raise Corte
         elif self.vg > self.vd:
             raise Gradual
         elif self.__id > self.__id_max:
             raise DemasiadaCorriente
-
-    def on(self):
-        self.__ison = True
-        self.__check__()
-
-    def off(self):
-        self.__ison = False
+    
+    def __refresh(self):
+        self.__gm = 2 * self.k * (self.vg - self.vs - self.vt)
+        self.__id = FETen.idrain(self.vg - self.vs, self.k, self.vt)
+        if self.__ison:
+            self.__check()
 
     @classmethod
     def fromdata(cls, vgs_data, id_data, id_max=.1):
@@ -57,10 +56,7 @@ class FETen:
     def k(self, k):
         self.__error = None
         self.__k = k
-        self.__gm = 2 * self.__k * (self.__vg - self.__vs + self.__vt)
-        self.__id = FETen.idrain(self.vg - self.vs, k, self.vt)
-        if self.__ison:
-            self.__check__()
+        self.__refresh()
 
     @property
     def vt(self):
@@ -70,10 +66,7 @@ class FETen:
     def vt(self, vt):
         self.__error = None
         self.__vt = vt
-        self.__gm = 2 * self.__k * (self.__vg - self.__vs + self.__vt)
-        self.__id = FETen.idrain(self.vg - self.vs, self.k, vt)
-        if self.__ison:
-            self.__check__()
+        self.__refresh()
 
     @property
     def vd(self):
@@ -83,7 +76,7 @@ class FETen:
     def vd(self, vd):
         self.__vd = vd
         if self.__ison:
-            self.__check__()
+            self.__check()
 
     @property
     def vg(self):
@@ -92,10 +85,7 @@ class FETen:
     @vg.setter
     def vg(self, vg):
         self.__vg = vg
-        self.__gm = 2 * self.__k * (self.__vg - self.__vs + self.__vt)
-        self.__id = FETen.idrain(vg - self.vs, self.k, self.vt)
-        if self.__ison:
-            self.__check__()
+        self.__refresh()
 
     @property
     def vs(self):
@@ -104,10 +94,7 @@ class FETen:
     @vs.setter
     def vs(self, vs):
         self.__vs = vs
-        self.__gm = 2 * self.__k * (self.__vg - self.__vs - self.__vt)
-        self.__id = FETen.idrain(self.vg - vs, self.k, self.vt)
-        if self.__ison:
-            self.__check__()
+        self.__refresh()
 
     def get_vgs(self):
         return self.vg - self.vs
@@ -123,3 +110,10 @@ class FETen:
 
     def get_error(self):
         return self.__error
+
+    def on(self):
+        self.__ison = True
+        self.__check()
+
+    def off(self):
+        self.__ison = False

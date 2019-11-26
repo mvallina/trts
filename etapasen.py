@@ -4,7 +4,7 @@ import numpy as np
 from feten import FETen
 from resistor import best_rdiv, nearest_r
 
-class EtapaSE: 
+class EtapaSE(object): 
 
     def __init__(self, fet, vdd, rd, rs, r1, r2, rg):
         self.__fet = fet
@@ -17,7 +17,7 @@ class EtapaSE:
         self.__zo = rd
         self.__vdd = vdd
         self.__gain = None
-        self.calcula_pto_trabajo()
+        self.__calcula_pto_trabajo()
 
     @classmethod
     def from_gain_rd_rs_zi(cls, fet, vdd=12, gain_t=25, rd=100, rs=0, zi=1e5, odiv=4, isE96=False):
@@ -33,7 +33,7 @@ class EtapaSE:
 
         return cls(fet, vdd, rd, rs, r1, r2, rg)
 
-    def calcula_pto_trabajo(self):
+    def __calcula_pto_trabajo(self):
         self.__fet.vg = self.vdd * self.r2 / (self.r1 + self.r2)
         vgsq = [root for root in 
             np.poly1d([
@@ -53,8 +53,8 @@ class EtapaSE:
     @r1.setter
     def r1(self, r1):
         self.__r1 = r1
-        self.__zi = rg + r1 * r2 / (r1 + r2)
-        self.calcula_pto_trabajo()
+        self.__zi = self.rg + self.r1 * self.r2 / (self.r1 + self.r2)
+        self.__calcula_pto_trabajo()
 
     @property
     def r2(self):
@@ -63,8 +63,8 @@ class EtapaSE:
     @r2.setter
     def r2(self, r2):
         self.__r2 = r2
-        self.__zi = rg + r1 * r2 / (r1 + r2)
-        self.calcula_pto_trabajo()
+        self.__zi = self.rg + self.r1 * self.r2 / (self.r1 + self.r2)
+        self.__calcula_pto_trabajo()
 
     @property
     def rd(self):
@@ -74,7 +74,7 @@ class EtapaSE:
     def rd(self, rd):
         self.__rd = rd
         self.__zo = rd
-        self.calcula_pto_trabajo()
+        self.__calcula_pto_trabajo()
 
     @property
     def rs(self):
@@ -83,7 +83,7 @@ class EtapaSE:
     @rs.setter
     def rs(self, rs):
         self.__rs = rs
-        self.calcula_pto_trabajo()
+        self.__calcula_pto_trabajo()
 
     @property
     def rg(self):
@@ -92,7 +92,7 @@ class EtapaSE:
     @rg.setter
     def rg(self, rg):
         self.__rg = rg
-        self.__zi = rg + r1 * r2 / (r1 + r2)
+        self.__zi = self.rg + self.r1 * self.r2 / (self.r1 + self.r2)
 
     @property
     def vdd(self):
@@ -101,7 +101,7 @@ class EtapaSE:
     @vdd.setter
     def vdd(self, vdd):
         self.__vdd = vdd
-        self.calcula_pto_trabajo()
+        self.__calcula_pto_trabajo()
 
     def get_vgsq(self):
         return self.__fet.get_vgs()
