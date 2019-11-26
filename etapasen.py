@@ -2,7 +2,7 @@
 
 import numpy as np
 from feten import FETen
-from resistor import best_rdiv, nearest_r
+from resistor import best_rdiv, nearest_r, nearest_greater_r
 
 class EtapaSE(object): 
 
@@ -29,7 +29,7 @@ class EtapaSE(object):
         r1, r2 = best_rdiv(vdd, vgq_target, isE96)
         r1 = int(r1 * 10 ** odiv)
         r2 = int(r2 * 10 ** odiv)
-        rg = nearest_r(zi - r1 * r2 / (r1 + r2), isE96)
+        rg = nearest_greater_r(zi - r1 * r2 / (r1 + r2), isE96)
 
         return cls(fet, vdd, rd, rs, r1, r2, rg)
 
