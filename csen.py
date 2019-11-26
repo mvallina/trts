@@ -65,7 +65,7 @@ print("{0:<6s} {1:>6.2f}".format("Idq =", 1000 * etapa.get_idq()) + " mA\n")
 print("Parámetros etapa\n")
 print("{0:<3s} {1:>6.1f}".format("G =", etapa.get_gain()) + " dB")
 print("{0:<3s} {1:>5s}".format("Zi =", r_str(etapa.get_zi(), args.e96)))
-print("{0:<3s} {1:>5s}".format("Zo =", r_str(etapa.get_zo(), args.e96)))
+print("{0:<3s} {1:>5s}\n".format("Zo =", r_str(etapa.get_zo(), args.e96)))
 
 if args.plot:
     vgs = np.linspace(vgs_data[0], vgs_data[len(vgs_data) - 1], 1000)
