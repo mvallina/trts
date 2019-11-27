@@ -1,6 +1,6 @@
 import numpy as np
 
-Mio = [1.0, 2.0, 2.2, 2.7, 3.0, 3.3, 4.7, 5.1, 6.8]
+owned_r = [1.0, 2.0, 2.2, 2.7, 3.0, 3.3, 4.7, 5.1, 6.8]
 
 E24 = [1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 
        1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 
@@ -21,7 +21,7 @@ E96 = [1.00, 1.02, 1.05, 1.07, 1.10, 1.13, 1.15, 1.18, 1.21,
 
 def best_rdiv(vdd, vrel, ise96):
     #eserie = E96 if ise96 else E24
-    eserie = Mio
+    eserie = owned_r
     divd = sorted([(np.abs(vrel - vdd * R2 / (R1 + R2)), R1, R2) 
         for R1 in eserie for R2 in eserie], key = lambda x:x[0])
     return (divd[0][1], divd[0][2])
@@ -30,7 +30,7 @@ def nearest_greater_r(resistor, ise96):
     if resistor <= 0:
         return 0
     #eserie = E96 if ise96 else E24
-    eserie = Mio
+    eserie = owned_r
     resistors = sorted([(R * 10 ** order - resistor, R * 10 ** order) 
         for R in eserie for order in range(7) if R * 10 ** order - resistor > 0], 
         key = lambda x:x[0])
@@ -40,7 +40,7 @@ def nearest_r(resistor, ise96):
     if resistor <= 0:
         return 0
     #eserie = E96 if ise96 else E24
-    eserie = Mio
+    eserie = owned_r
     order = 10 ** np.floor(np.log10(resistor))
     resistors = sorted([(np.abs(resistor / order - R), R * order) 
         for R in eserie], key = lambda x:x[0])
