@@ -48,11 +48,15 @@ except DemasiadaCorriente:
 print("\nParámetros estimados nFET\n")
 print("{0:<4s} {1:>5.2f}".format("K =", etapa.get_k() * 1000) + " mA/V²")
 print("{0:<4s} {1:>5.2f}".format("Vt =", etapa.get_vt()) + " V\n")
-print("Red de polarización\n")
-print("R1 = {:>5s}".format(r_str(etapa.r1, args.e96)))
-print("R2 = {:>5s}".format(r_str(etapa.r2, args.e96)))
-print("Rd = {:>5s}".format(r_str(etapa.rd, args.e96)))
-print("Rs = {:>5s}".format(r_str(etapa.rs, args.e96)))
+print("Red de polarización\tDisipación\n")
+print("R1 = {0:>5s}{1:21.0f} mW".format(
+    r_str(etapa.r1, args.e96), 1000 * ((etapa.vdd - etapa.get_vgq()) ** 2 / etapa.r1)))
+print("R2 = {0:>5s}{1:21.0f} mW".format(
+    r_str(etapa.r2, args.e96), 1000 * etapa.get_vgq() ** 2 / etapa.r2))
+print("Rd = {0:>5s}{1:21.0f} mW".format(
+    r_str(etapa.rd, args.e96), 1000 * etapa.rd * etapa.get_idq() ** 2))
+print("Rs = {0:>5s}{1:21.0f} mW".format(
+    r_str(etapa.rs, args.e96), 1000 * etapa.rs * etapa.get_idq() ** 2))
 print("Rg ≥ {:>5s}\n".format(r_str(etapa.rg, args.e96)))
 print("Punto de trabajo\n")
 print("{0:<6s} {1:>6.2f}".format("Vdd =", etapa.vdd) + " V")
