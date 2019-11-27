@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("file", type=str, help="archivo de medidas")
 parser.add_argument("-Rd", "--rd", type=int, default=100, help="resistencia drenador")
 parser.add_argument("-Rs", "--rs", type=int, default=0, help="resistencia surtidor")
-parser.add_argument("-Zi", "--zi", type=int, default=30e3, help="impedancia entrada")
+parser.add_argument("-Zi", "--zi", type=int, default=30, help="impedancia entrada Kohm")
 parser.add_argument("-G", "--gain", type=float, default=25, help="ganancia (dB)")
 parser.add_argument("-P", "--plot", action="store_true", help="pintar ajuste")
 parser.add_argument("-I", "--idmax", type= float, default=.2, help="Id_max")
@@ -34,7 +34,7 @@ rs = nearest_r(args.rs, args.e96)
 
 try:
     etapa = EtapaSE.from_gain_rd_rs_zi(FETen.fromdata(vgs_data, id_data, args.idmax), 
-                args.vdd, args.gain, rd, rs, args.zi, odiv=args.odiv, isE96=args.e96)
+                args.vdd, args.gain, rd, rs, args.zi * 1000, odiv=args.odiv, isE96=args.e96)
 except Corte:
     print("Transistor en corte")
     exit()
