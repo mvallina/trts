@@ -45,6 +45,9 @@ except DemasiadaCorriente:
     print("¡¡¡ Demasiada corriente !!!")
     exit()
 
+md = min(etapa.get_idq() * etapa.rd, etapa.get_vdsq() - etapa.get_vgsq())
+gain = 10 ** (args.gain / 20)
+
 print("\nParámetros estimados nFET\n")
 print("{0:<4s} {1:>5.2f}".format("K =", etapa.get_k() * 1000) + " mA/V²")
 print("{0:<4s} {1:>5.2f}".format("Vt =", etapa.get_vt()) + " V\n")
@@ -66,7 +69,11 @@ print("{0:<6s} {1:>6.2f}".format("Vrd =", etapa.vdd - etapa.get_vdq()) + " V")
 print("{0:<6s} {1:>6.2f}".format("Vdq =", etapa.get_vdq()) + " V")
 print("{0:<6s} {1:>6.2f}".format("Vgq =", etapa.get_vgq()) + " V")
 print("{0:<6s} {1:>6.2f}".format("Vsq =", etapa.get_vsq()) + " V")
-print("{0:<6s} {1:>6.2f}".format("Idq =", 1000 * etapa.get_idq()) + " mA\n")
+print("{0:<6s} {1:>6.2f}".format("MDₛ =", md) + " V")
+print("{0:<6s} {1:>6.2f}".format("MDₑ =", 1000 * md / gain) + " mV")
+print("{0:<6s} {1:>6.2f}".format("Idq =", 1000 * etapa.get_idq()) + " mA")
+print("{0:<6s} {1:>6.2f}".format(
+    "Pₜ=", 1000 * etapa.get_idq() * etapa.get_vdsq()) + " mW\n")
 print("Parámetros etapa\n")
 print("{0:<3s} {1:>6.1f}".format("G =", etapa.get_gain()) + " dB")
 print("{0:<3s} {1:>5s}".format("Zi =", r_str(etapa.get_zi(), args.e96)))
