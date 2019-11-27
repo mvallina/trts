@@ -10,33 +10,33 @@ class Gradual(Exception):
 class DemasiadaCorriente(Exception):
     pass
 
-class FETen:
+class FETen(object):
 
     def __init__(self, k, vt, vd=0, vg=0, vs=0, id_max=.1, error=None):
-        self.__ison = False
-        self.__k = k
-        self.__vt = vt
-        self.__vd = vd
-        self.__vg = vg
-        self.__vs = vs
-        self.__gm = 2 * self.k * (self.vg - self.vs + self.vt)
-        self.__id = FETen.idrain(self.vg - self.vs, self.k, self.vt)
-        self.__id_max = id_max
-        self.__error = None if error is None else error
+        self._ison = False
+        self._k = k
+        self._vt = vt
+        self._vd = vd
+        self._vg = vg
+        self._vs = vs
+        self._gm = 2 * self.k * (self.vg - self.vs + self.vt)
+        self._id = FETen.idrain(self.vg - self.vs, self.k, self.vt)
+        self._id_max = id_max
+        self._error = None if error is None else error
 
-    def __check(self):
+    def _check(self):
         if self.vg - self.vs < self.vt:
             raise Corte
         elif self.vg > self.vd:
             raise Gradual
-        elif self.__id > self.__id_max:
+        elif self._id > self._id_max:
             raise DemasiadaCorriente
     
-    def __refresh(self):
-        self.__gm = 2 * self.k * (self.vg - self.vs - self.vt)
-        self.__id = FETen.idrain(self.vg - self.vs, self.k, self.vt)
-        if self.__ison:
-            self.__check()
+    def _refresh(self):
+        self._gm = 2 * self.k * (self.vg - self.vs - self.vt)
+        self._id = FETen.idrain(self.vg - self.vs, self.k, self.vt)
+        if self._ison:
+            self._check()
 
     @classmethod
     def fromdata(cls, vgs_data, id_data, id_max=.1):
@@ -50,70 +50,75 @@ class FETen:
 
     @property
     def k(self):
-        return self.__k
+        return self._k
 
     @k.setter
     def k(self, k):
-        self.__error = None
-        self.__k = k
-        self.__refresh()
+        self._error = None
+        self._k = k
+        self._refresh()
 
     @property
     def vt(self):
-        return self.__vt
+        return self._vt
 
     @vt.setter
     def vt(self, vt):
-        self.__error = None
-        self.__vt = vt
-        self.__refresh()
+        self._error = None
+        self._vt = vt
+        self._refresh()
 
     @property
     def vd(self):
-        return self.__vd
+        return self._vd
 
     @vd.setter
     def vd(self, vd):
-        self.__vd = vd
-        if self.__ison:
-            self.__check()
+        self._vd = vd
+        if self._ison:
+            self._check()
 
     @property
     def vg(self):
-        return self.__vg
+        return self._vg
 
     @vg.setter
     def vg(self, vg):
-        self.__vg = vg
-        self.__refresh()
+        self._vg = vg
+        self._refresh()
 
     @property
     def vs(self):
-        return self.__vs
+        return self._vs
 
     @vs.setter
     def vs(self, vs):
-        self.__vs = vs
-        self.__refresh()
+        self._vs = vs
+        self._refresh()
 
-    def get_vgs(self):
+    @property
+    def vgs(self):
         return self.vg - self.vs
 
-    def get_vds(self):
+    @property
+    def vds(self):
         return self.vd - self.vs
 
-    def get_id(self):
-        return self.__id
+    @property
+    def idq(self):
+        return self._id
 
-    def get_gm(self):
-        return self.__gm
+    @property
+    def gm(self):
+        return self._gm
 
-    def get_error(self):
-        return self.__error
+    @property
+    def error(self):
+        return self._error
 
     def on(self):
-        self.__ison = True
-        self.__check()
+        self._ison = True
+        self._check()
 
     def off(self):
-        self.__ison = False
+        self._ison = False

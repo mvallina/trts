@@ -3,7 +3,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
-from resistor import nearest_r, r_str
+from resistor import r_str
 from etapasen import EtapaSE
 from feten import FETen, Corte, Gradual, DemasiadaCorriente
 
@@ -29,12 +29,10 @@ except OSError:
     
 vgs_data, id_data = data[:, 0], data[:, 1]
 
-rd = nearest_r(args.rd, args.e96)
-rs = nearest_r(args.rs, args.e96)
-
 try:
     etapa = EtapaSE.from_gain_rd_rs_zi(FETen.fromdata(vgs_data, id_data, args.idmax), 
-                args.vdd, args.gain, rd, rs, args.zi * 1000, odiv=args.odiv, isE96=args.e96)
+                args.vdd, args.gain, args.rd, args.rs, args.zi * 1000, 
+                odiv=args.odiv, isE96=args.e96)
 except Corte:
     print("Transistor en corte")
     exit()
@@ -45,46 +43,41 @@ except DemasiadaCorriente:
     print("¡¡¡ Demasiada corriente !!!")
     exit()
 
-md = min(etapa.get_idq() * etapa.rd, etapa.get_vdsq() - etapa.get_vgsq())
-gain = 10 ** (args.gain / 20)
-
 print("\nParámetros estimados nFET\n")
-print("{0:<4s} {1:>5.2f}".format("K =", etapa.get_k() * 1000) + " mA/V²")
-print("{0:<4s} {1:>5.2f}".format("Vt =", etapa.get_vt()) + " V\n")
+print("{0:<4s} {1:>5.2f}".format("K =", etapa.k * 1000) + " mA/V²")
+print("{0:<4s} {1:>5.2f}".format("Vt =", etapa.vt) + " V\n")
 print("Red de polarización\tDisipación\n")
 print("R1 = {0:>5s}{1:21.0f} mW".format(
-    r_str(etapa.r1, args.e96), 1000 * ((etapa.vdd - etapa.get_vgq()) ** 2 / etapa.r1)))
+    r_str(etapa.r1, args.e96), 1000 * ((etapa.vdd - etapa.vgq) ** 2 / etapa.r1)))
 print("R2 = {0:>5s}{1:21.0f} mW".format(
-    r_str(etapa.r2, args.e96), 1000 * etapa.get_vgq() ** 2 / etapa.r2))
+    r_str(etapa.r2, args.e96), 1000 * etapa.vgq ** 2 / etapa.r2))
 print("Rd = {0:>5s}{1:21.0f} mW".format(
-    r_str(etapa.rd, args.e96), 1000 * etapa.rd * etapa.get_idq() ** 2))
+    r_str(etapa.rd, args.e96), 1000 * etapa.rd * etapa.idq ** 2))
 print("Rs = {0:>5s}{1:21.0f} mW".format(
-    r_str(etapa.rs, args.e96), 1000 * etapa.rs * etapa.get_idq() ** 2))
+    r_str(etapa.rs, args.e96), 1000 * etapa.rs * etapa.idq ** 2))
 print("Rg ≥ {:>5s}\n".format(r_str(etapa.rg, args.e96)))
 print("Punto de trabajo\n")
 print("{0:<6s} {1:>6.2f}".format("Vdd =", etapa.vdd) + " V")
-print("{0:<6s} {1:>6.2f}".format("Vdsq =", etapa.get_vdsq()) + " V")
-print("{0:<6s} {1:>6.2f}".format("Vgsq =", etapa.get_vgsq()) + " V")
-print("{0:<6s} {1:>6.2f}".format("Vrd =", etapa.vdd - etapa.get_vdq()) + " V")
-print("{0:<6s} {1:>6.2f}".format("Vdq =", etapa.get_vdq()) + " V")
-print("{0:<6s} {1:>6.2f}".format("Vgq =", etapa.get_vgq()) + " V")
-print("{0:<6s} {1:>6.2f}".format("Vsq =", etapa.get_vsq()) + " V")
-print("{0:<6s} {1:>6.2f}".format("MDₛ =", md) + " V")
-print("{0:<6s} {1:>6.2f}".format("MDₑ =", 1000 * md / gain) + " mV")
-print("{0:<6s} {1:>6.2f}".format("Idq =", 1000 * etapa.get_idq()) + " mA")
-print("{0:<6s} {1:>6.2f}".format(
-    "Pₜ=", 1000 * etapa.get_idq() * etapa.get_vdsq()) + " mW\n")
+print("{0:<6s} {1:>6.2f}".format("Vdsq =", etapa.vdsq) + " V")
+print("{0:<6s} {1:>6.2f}".format("Vgsq =", etapa.vgsq) + " V")
+print("{0:<6s} {1:>6.2f}".format("Vrd =", etapa.vdd - etapa.vdq) + " V")
+print("{0:<6s} {1:>6.2f}".format("Vdq =", etapa.vdq) + " V")
+print("{0:<6s} {1:>6.2f}".format("Vgq =", etapa.vgq) + " V")
+print("{0:<6s} {1:>6.2f}".format("Vsq =", etapa.vsq) + " V")
+print("{0:<6s} {1:>6.2f}".format("MDₛ =", etapa.mdo) + " V")
+print("{0:<6s} {1:>6.2f}".format("MDₑ =", 1000 * etapa.mdi) + " mV")
+print("{0:<6s} {1:>6.2f}".format("Idq =", 1000 * etapa.idq) + " mA")
+print("{0:<6s} {1:>6.2f}".format("Pₜ=", 1000 * etapa.idq * etapa.vdsq) + " mW\n")
 print("Parámetros etapa\n")
-print("{0:<3s} {1:>6.1f}".format("G =", etapa.get_gain()) + " dB")
-print("{0:<3s} {1:>5s}".format("Zi =", r_str(etapa.get_zi(), args.e96)))
-print("{0:<3s} {1:>5s}\n".format("Zo =", r_str(etapa.get_zo(), args.e96)))
+print("{0:<3s} {1:>6.1f}".format("G =", etapa.gain_db) + " dB")
+print("{0:<3s} {1:>5s}".format("Zi =", r_str(etapa.zi, args.e96)))
+print("{0:<3s} {1:>5s}\n".format("Zo =", r_str(etapa.zo, args.e96)))
 
 if args.plot:
     vgs = np.linspace(vgs_data[0], vgs_data[len(vgs_data) - 1], 1000)
-    i_d = etapa.get_k() * np.square(vgs - etapa.get_vt())
+    i_d = etapa.k * np.square(vgs - etapa.vt)
     
-    plt.title(r"$K = {0:4.1f} mA/V^2, V_t = {1:5.2f}V$".format(
-        etapa.get_k() * 1000, etapa.get_vt()))
+    plt.title(r"$K = {0:4.1f} mA/V^2, V_t = {1:5.2f}V$".format(etapa.k * 1000, etapa.vt))
     plt.xlabel(r"$v_{gs}$")
     plt.ylabel(r"$i_d$")
     plt.grid()
