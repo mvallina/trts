@@ -1,6 +1,11 @@
 import numpy as np
 
-owned_r = [1.0, 2.0, 2.2, 2.7, 3.0, 3.3, 4.7, 5.1, 6.8]
+owned_r = [     10,      22, 
+               100,     200,     220,     270,     470,     680,
+              1000,    2000,    2200,    3300,    4700,    5100,      6800,
+             10000,   20000,   22000,   47000,   50500,   68000,
+            100000,  220000,  300000,  470000,  680000,
+           1000000]
 
 E24 = [1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 
        1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 
@@ -19,28 +24,45 @@ E96 = [1.00, 1.02, 1.05, 1.07, 1.10, 1.13, 1.15, 1.18, 1.21,
        6.98, 7.15, 7.32, 7.50, 7.68, 7.87, 8.06, 8.25, 8.45, 
        8.66, 8.87, 9.09, 9.31, 9.53, 9.76]
 
-def best_rdiv(vdd, vrel, ise96):
-    #eserie = E96 if ise96 else E24
-    eserie = owned_r
+def best_rdiv(vdd, vrel, orden):
+    owned = [R for R in owned_r if R > 10 ** orden - 1 and R < 10 ** (orden + 1)]
+    divd = sorted([(np.abs(vrel - vdd * R2 / (R1 + R2)), R1, R2) 
+        for R1 in owned for R2 in owned], key = lambda x:x[0])
+    return (divd[0][1], divd[0][2])
+
+def nearest_greater_r(resistor):
+    if resistor <= 0:
+        return 0
+    resistors = sorted([(R - resistor, R) 
+        for R in owned_r if R - resistor > 0], key = lambda x:x[0])
+    return int(resistors[0][1])
+
+def nearest_r(resistor):
+    if resistor <= 0:
+        return 0
+    resistors = sorted([(np.abs(resistor - R), R) 
+        for R in owned_r], key = lambda x:x[0])
+    return int(resistors[0][1])
+
+def best_rdiv_in_series(vdd, vrel, ise96):
+    eserie = E96 if ise96 else E24
     divd = sorted([(np.abs(vrel - vdd * R2 / (R1 + R2)), R1, R2) 
         for R1 in eserie for R2 in eserie], key = lambda x:x[0])
     return (divd[0][1], divd[0][2])
 
-def nearest_greater_r(resistor, ise96):
+def nearest_greater_r_in_series(resistor, ise96):
     if resistor <= 0:
         return 0
-    #eserie = E96 if ise96 else E24
-    eserie = owned_r
+    eserie = E96 if ise96 else E24
     resistors = sorted([(R * 10 ** order - resistor, R * 10 ** order) 
         for R in eserie for order in range(7) if R * 10 ** order - resistor > 0], 
         key = lambda x:x[0])
     return int(resistors[0][1])
 
-def nearest_r(resistor, ise96):
+def nearest_r_in_series(resistor, ise96):
     if resistor <= 0:
         return 0
-    #eserie = E96 if ise96 else E24
-    eserie = owned_r
+    eserie = E96 if ise96 else E24
     order = 10 ** np.floor(np.log10(resistor))
     resistors = sorted([(np.abs(resistor / order - R), R * order) 
         for R in eserie], key = lambda x:x[0])

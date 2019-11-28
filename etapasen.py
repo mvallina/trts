@@ -24,17 +24,17 @@ class EtapaSE(object):
 
     @classmethod
     def from_gain_rd_rs_zi(cls, fet, vdd=12, gain_t=25, rd=100, rs=0, zi=1e5, odiv=4, isE96=False):
-        rd = nearest_r(rd, isE96)
-        rs = nearest_r(rs, isE96)
+        rd = nearest_r(rd)
+        rs = nearest_r(rs)
         gain_target = 10 ** (gain_t / 20)
         vgsq_target = gain_target / (2 * fet.k * rd) + fet.vt
         idq_target = FETen.idrain(vgsq_target, fet.k, fet.vt)
         vgq_target = vgsq_target + idq_target * rs
 
-        r1, r2 = best_rdiv(vdd, vgq_target, isE96)
-        r1 = int(r1 * 10 ** odiv)
-        r2 = int(r2 * 10 ** odiv)
-        rg = nearest_greater_r(zi - r1 * r2 / (r1 + r2), isE96)
+        r1, r2 = best_rdiv(vdd, vgq_target, odiv)
+        r1 = int(r1)
+        r2 = int(r2)
+        rg = nearest_greater_r(zi - r1 * r2 / (r1 + r2))
 
         return cls(fet, vdd, rd, rs, r1, r2, rg)
 
